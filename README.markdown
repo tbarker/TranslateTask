@@ -8,7 +8,7 @@ You'll need a Google Translate API key from the Google API Console.
 Remember that machine translated text is rarely "quite right", so you should flag this up to your user.  (And give Google Translate credit as per their T&Cs.)  Translate Task can add a magic property to generated output to distinguish it.
 
 
-Useage
+Usage
 ------
 
     <taskdef name="translate" classname="com.thomasbarker.translatetask.ant.TranslateTask" classpath="dist/translate-task.jar" />
