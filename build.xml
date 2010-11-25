@@ -1,0 +1,58 @@
+<project name="translatetask" basedir="." default="dist">
+
+	<property file="build.properties" />
+	
+	<path id="lib.path">
+		<fileset dir="${basedir}/lib" includes="*.jar" />
+		<fileset dir="${basedir}/buildtools" includes="*.jar" />
+	</path>
+
+	<path id="build.path">
+		<fileset dir="${basedir}/buildtools" includes="*.jar" />
+	</path>
+
+    <taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask" classpathref="build.path" />
+
+	<path id="classpath.base">
+		<fileset dir="${basedir}/build/classes" />
+	</path>
+	<path id="classpath.test">
+		<path refid="lib.path" />
+		<path refid="classpath.base" />
+	</path>
+
+	<target name="clean">
+		<delete dir="${basedir}/build/classes" />
+		<delete dir="${basedir}/dist" />
+	</target>
+	
+	<target name="compile" description="Compile the code">
+		<mkdir dir="${basedir}/build/classes" />
+		<javac srcdir="${basedir}/src" destdir="${basedir}/build/classes" classpathref="lib.path" debug="on" source="1.5" />
+	</target>
+
+	<target name="dist" depends="compile">
+		<mkdir dir="${basedir}/dist" />
+		<jarjar jarfile="dist/translate-task.jar">
+	        <fileset dir="build/classes"/>
+	    	<zipgroupfileset dir="lib" includes="*.jar" />
+	        <rule pattern="org.apache.commons.cli.**" result="com.thomasbarker.translatetask.org.apache.commons.cli.@1"/>
+	        <rule pattern="org.json.**" result="com.thomasbarker.translatetask.org.json.@1"/>
+		    <manifest>
+				<attribute name="Built-By" value="${user.name}"/>
+		    	<attribute name="Main-Class" value="com.thomasbarker.translatetask.main.RunTranslateTool" />
+		    </manifest>
+		</jarjar>
+	</target>
+
+	<target name="try" depends="dist">
+	    <taskdef name="translate" classname="com.thomasbarker.translatetask.ant.TranslateTask" classpath="dist/translate-task.jar" />
+		<translate from="en" to="de" key="${translate.googleapikey}"
+			dest="test" targetEncoding="XML" magicProperty="magic.autotranslate">
+			<fileset dir="test">
+				<include name="**/test.properties" />
+			</fileset>
+		</translate>
+	</target>
+
+</project>
